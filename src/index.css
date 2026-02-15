@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background: off-white */
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
+    /* Cards: slightly cooler */
+    --card: 220 14% 96%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 210 20% 98%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary accent: muted blue #2563EB */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: soft indigo #6366F1 */
+    --secondary: 239 84% 67%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted: slate tones */
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders: #E5E7EB */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --code-bg: 220 14% 96%;
+    --code-foreground: 222 47% 18%;
+    --slate: 215 16% 47%;
+    --charcoal: 222 47% 11%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-bold;
+    color: hsl(var(--charcoal));
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .hover-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  .hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px -2px hsl(var(--charcoal) / 0.08);
+  }
+}
