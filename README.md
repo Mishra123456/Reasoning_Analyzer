@@ -8,11 +8,11 @@ An AI-powered system that **explains why reasoning is wrong — without ever giv
 
 | Landing Page | Interactive Demo |
 |:---:|:---:|
-| ![Landing Page](screenshots/landing.png) | ![Interactive Demo](screenshots/demo.png) |
+| ![Landing Page](public/l1.png) | ![Interactive Demo](public/l2.png) |
 
 | Education Mode Output | Research Mode Output |
 |:---:|:---:|
-| ![Education Output](screenshots/education_output.png) | ![Research Output](screenshots/research_output.png) |
+| ![Education Output](public/l3.png)
 
 > **Note:** Replace the placeholder paths above with actual screenshots. Create a `screenshots/` folder and add your images there.
 
@@ -215,7 +215,7 @@ The system supports **three distinct analysis personas**, each driven by a dedic
 
 **Role**: AI Tutor — explains reasoning mistakes to help learning
 
-![Education Mode Example](screenshots/education_mode.png)
+![Education Mode Example](public/l4.png)
 <!-- Replace with an actual screenshot of Education mode output -->
 
 **Output Structure**:
@@ -237,7 +237,7 @@ The system supports **three distinct analysis personas**, each driven by a dedic
 
 **Role**: AI Interviewer — evaluates reasoning quality neutrally
 
-![Interview Mode Example](screenshots/interview_mode.png)
+![Interview Mode Example](public/l5.png)
 <!-- Replace with an actual screenshot of Interview mode output -->
 
 **Rules**: No teaching, coaching, encouraging, or advice. All output is framed as neutral evaluation.
@@ -258,7 +258,7 @@ The system supports **three distinct analysis personas**, each driven by a dedic
 
 **Role**: AI Researcher — analyzes reasoning errors as cognitive patterns
 
-![Research Mode Example](screenshots/research_mode.png)
+![Research Mode Example](public/l6.png)
 <!-- Replace with an actual screenshot of Research mode output -->
 
 **Rules**: Impersonal, analytical tone. Describes patterns, not individuals. No evaluative language.
@@ -414,7 +414,7 @@ reasoning-insights-main/
 
 - **Node.js** ≥ 18 and **npm**
 - **Python** ≥ 3.9 and **pip**
-- **Ollama** installed — [Download](https://ollama.ai)
+- **Ollama** installed 
 
 ### Installation
 
