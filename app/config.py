@@ -1,4 +1,4 @@
-MODEL_NAME = "qwen2.5:3b"
+MODEL_NAME = "phi3.5:3.8b"
 MAX_TOKENS = 400
 
 FORBIDDEN_PHRASES = [

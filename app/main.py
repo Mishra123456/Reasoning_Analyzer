@@ -40,7 +40,7 @@ except FileNotFoundError as e:
 def parse_llm_output(output_text: str) -> dict:
     """
     Parses the structured output from the LLM into a dictionary.
-    Supports multiple formats by looking for "Key:\nValue" patterns.
+    Supports both "Key:\nValue" (multi-line) and "Key: Value" (inline) formats.
     """
     result = {
         "mistake_type": "Unknown",
@@ -49,81 +49,91 @@ def parse_llm_output(output_text: str) -> dict:
         "additional_fields": {} 
     }
 
-    # regex to find headers like "Mistake Type:" or "Reasoning Error Category:"
-    # We look for a line starting with words and a colon, followed by content.
-    
-    # Strategy: Split by double newlines or identify known keys? 
-    # The prompts use "Key:\n- Value" or "Key:\nValue".
-    
-    # Let's try to map common keys to our standard schema, and put everything else in 'additional_fields'.
+    # All known section headers across all modes
+    KNOWN_HEADERS = [
+        # Education
+        "Mistake Type", "Error Pattern Tag", "Confidence Level",
+        "Consistency Check", "What Went Wrong", "Why This Happens",
+        "How To Rethink", "What Would Have Prevented This",
+        "What Would Have Prevented", "Reflection Question",
+        # Research
+        "Reasoning Error Category", "Cognitive Pattern",
+        "Confidence in Classification", "Agreement with User Analysis",
+        "Research Interpretation", "Why This Pattern Occurs",
+        "Broader Implications", "Related Cognitive Biases",
+        # Interview
+        "Interviewer Assessment", "Risk Signals",
+    ]
     
     parsed_sections = {}
-    
-    # Pattern: Line(s) acting as Header (ending in :) followed by content until next Header.
-    # We can use a scanner approach.
     lines = output_text.splitlines()
     current_key = None
     current_content = []
     
     for line in lines:
-        line = line.strip()
-        if not line:
+        stripped = line.strip()
+        if not stripped:
             continue
-            
-        # Check if line is a header (e.g., "Mistake Type:", "Why This Happens:")
-        # We assume headers don't start with "- " and end with ":"
-        if line.endswith(":") and not line.startswith("-") and len(line) < 50:
+        
+        found_header = None
+        remaining_value = None
+        
+        # Check if this line starts with a known header
+        for header in KNOWN_HEADERS:
+            # Match "Header:" or "Header: value"
+            if stripped.startswith(header + ":"):
+                found_header = header
+                remaining_value = stripped[len(header) + 1:].strip()
+                # Remove leading "- " from value if present
+                if remaining_value.startswith("- "):
+                    remaining_value = remaining_value[2:].strip()
+                break
+        
+        # Also match generic "Something:" at end of line (for unknown headers)
+        if not found_header and stripped.endswith(":") and not stripped.startswith("-") and len(stripped) < 50:
+            found_header = stripped[:-1]
+            remaining_value = ""
+        
+        if found_header:
+            # Save previous section
             if current_key:
                 parsed_sections[current_key] = "\n".join(current_content).strip()
-            current_key = line[:-1] # Remove colon
-            current_content = []
+            current_key = found_header
+            current_content = [remaining_value] if remaining_value else []
         else:
-            current_content.append(line)
+            # Remove leading "- " from content lines
+            if stripped.startswith("- "):
+                stripped = stripped[2:]
+            current_content.append(stripped)
             
     if current_key:
         parsed_sections[current_key] = "\n".join(current_content).strip()
 
-    # MAPPINGS
-    # Define mapping from possible LLM keys to our API schema
+    # MAPPINGS from LLM keys to API schema
     key_mapping = {
-        # Standard / Education
+        # Education
         "Mistake Type": "mistake_type",
         "Error Pattern Tag": "reasoning_pattern",
         "What Went Wrong": "explanation",
-        
         # Research
         "Reasoning Error Category": "mistake_type",
         "Cognitive Pattern": "reasoning_pattern",
         "Research Interpretation": "explanation",
-        
-        # Interview
-        # (Uses Mistake Type/Error Pattern Tag as well usually, or we can map others)
     }
 
     # Populate result
     for llm_key, value in parsed_sections.items():
         mapped_key = key_mapping.get(llm_key)
         if mapped_key:
-            # If we already have something (e.g. from multiple explanations), append?
-            # For explanation, we might want to combine "What Went Wrong" and "Why This Happens"
             if mapped_key == "explanation" and result["explanation"] != output_text:
                  result["explanation"] += f"\n\n**{llm_key}**:\n{value}"
             elif mapped_key == "explanation":
-                 result["explanation"] = value # First explanation field found
+                 result["explanation"] = value
             else:
                 result[mapped_key] = value
         else:
-            # Keep track of unmapped fields to show them too
             result["additional_fields"][llm_key] = value
 
-    # Append generic fields to explanation if they are relevant but not strictly mapped?
-    # Or just return them in raw_response/structure.
-    # The user wants "everything I asked in the prompt".
-    # We will pass 'additional_fields' in the response.
-    
-    # Special handling for "Why This Happens" etc to append to explanation if not mapped
-    # (Actually, let's just dump everything into additional_fields if processed by frontend)
-    
     return result
 
 @app.post("/analyze", response_model=AnalysisResponse)
